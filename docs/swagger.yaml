@@ -301,11 +301,11 @@ paths:
         required: true
         schema:
           properties:
-            ' name':
-              type: string
-            ' password':
-              type: string
             email:
+              type: string
+            name:
+              type: string
+            password:
               type: string
           type: object
       produces:
