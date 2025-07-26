@@ -11,6 +11,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// @Summary Register user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param register body object{email=string,password=string,name=string} true "User data"
+// @Success 200 {object} models.ResponseMsg
+// @Failure 400 {object} models.ResponseError
+// @Failure 409 {object} models.ResponseMsg
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/register [post]
 func Register(c *fiber.Ctx) error {
 	// Extract body
 	body := &models.User{}
@@ -66,6 +76,17 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body object{email=string,password=string} true "User credentials"
+// @Success 200 {object} object{message=string,data=object{token=string}}
+// @Failure 400 {object} models.ResponseError
+// @Failure 401 {object} models.ResponseMsg
+// @Failure 404 {object} models.ResponseMsg
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/login [post]
 func Login(c *fiber.Ctx) error {
 	body := &models.User{}
 	if err := c.BodyParser(body); err != nil {

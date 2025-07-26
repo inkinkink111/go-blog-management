@@ -1,0 +1,375 @@
+basePath: /
+definitions:
+  models.Blog:
+    properties:
+      author_id:
+        example: "1234567890"
+        type: string
+      blog_id:
+        example: "1234567890"
+        type: string
+      content:
+        example: Blog content
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      id:
+        type: string
+      slug:
+        example: my-blog-title
+        type: string
+      tags:
+        example:
+        - golang
+        - redis
+        items:
+          type: string
+        type: array
+      title:
+        example: My Blog Title
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.CreateBlogError:
+    properties:
+      error:
+        example: Failed to create blog.
+        type: string
+      message:
+        example: Failed to create blog.
+        type: string
+    type: object
+  models.CreateBlogRequest:
+    properties:
+      content:
+        example: Blog content
+        type: string
+      tags:
+        example:
+        - golang
+        - redis
+        items:
+          type: string
+        type: array
+      title:
+        example: My Blog Title
+        type: string
+    required:
+    - content
+    - tags
+    - title
+    type: object
+  models.CreateBlogSuccess:
+    properties:
+      data:
+        additionalProperties:
+          type: string
+        example:
+          blog_id: ' 1234567890'
+        type: object
+      message:
+        example: Blog created successfully.
+        type: string
+    type: object
+  models.GetAllBlogRequest:
+    properties:
+      data:
+        additionalProperties:
+          type: string
+        example:
+          blogs: blog_data
+          limit: "10"
+          page: "1"
+          total_item: "1"
+          total_pages: "1"
+        type: object
+      message:
+        example: Get all blogs successfully.
+        type: string
+    type: object
+  models.GetBlogByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Blog'
+      message:
+        example: Get blog by id successfully.
+        type: string
+    type: object
+  models.ResponseError:
+    properties:
+      error:
+        example: Detailed error
+        type: string
+      message:
+        example: Error message
+        type: string
+    type: object
+  models.ResponseMsg:
+    properties:
+      message:
+        example: Response message
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: A blog API with user authentication and Redis caching
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Blog Management API
+  version: "1.0"
+paths:
+  /api/v1/all_blogs:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of blogs with optional tag filtering
+      parameters:
+      - default: "1"
+        description: Page number
+        in: query
+        name: page
+        type: string
+      - default: "10"
+        description: Items per page
+        in: query
+        name: limit
+        type: string
+      - description: Comma-separated tags
+        in: query
+        name: tags
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetAllBlogRequest'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Get all blogs
+      tags:
+      - blogs
+  /api/v1/blogs/:blog_id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetBlogByIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Get blog by id
+      tags:
+      - blogs
+  /api/v1/create_blog:
+    post:
+      consumes:
+      - application/json
+      description: Create a new blog post with title, content, and tags
+      parameters:
+      - description: Blog data
+        in: body
+        name: blog
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateBlogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreateBlogSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.CreateBlogError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.CreateBlogError'
+      security:
+      - BearerAuth: []
+      summary: Create a new blog post
+      tags:
+      - blogs
+  /api/v1/delete_blog/:blog_id:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete a blog post
+      tags:
+      - blogs
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                properties:
+                  token:
+                    type: string
+                type: object
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Login
+      tags:
+      - auth
+  /api/v1/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User data
+        in: body
+        name: register
+        required: true
+        schema:
+          properties:
+            ' name':
+              type: string
+            ' password':
+              type: string
+            email:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Register user
+      tags:
+      - auth
+  /api/v1/update_blog/:blog_id:
+    put:
+      consumes:
+      - application/json
+      description: Update a blog post with title, content, and tags
+      parameters:
+      - description: Blog data
+        in: body
+        name: blog
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateBlogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update a blog post
+      tags:
+      - blogs
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

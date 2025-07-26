@@ -15,6 +15,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary Get all blogs
+// @Description Get paginated list of blogs with optional tag filtering
+// @Tags blogs
+// @Accept json
+// @Produce json
+// @Param page query string false "Page number" default(1)
+// @Param limit query string false "Items per page" default(10)
+// @Param tags query string false "Comma-separated tags"
+// @Success 200 {object} models.GetAllBlogRequest
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/all_blogs [get]
 func GetAllBlogs(c *fiber.Ctx) error {
 	// Get query params
 	page := c.Query("page", "1")
@@ -78,6 +89,13 @@ func GetAllBlogs(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Get blog by id
+// @Tags blogs
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.GetBlogByIDResponse
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/blogs/:blog_id [get]
 func GetBlogByID(c *fiber.Ctx) error {
 	// Get blog id
 	blogID := c.Params("blog_id")
@@ -125,6 +143,17 @@ func GetBlogByID(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Create a new blog post
+// @Description Create a new blog post with title, content, and tags
+// @Tags blogs
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param blog body models.CreateBlogRequest true "Blog data"
+// @Success 200 {object} models.CreateBlogSuccess
+// @Failure 400 {object} models.CreateBlogError
+// @Failure 500 {object} models.CreateBlogError
+// @Router /api/v1/create_blog [post]
 func CreateBlog(c *fiber.Ctx) error {
 	// Get Author ID from jwt
 	authorID := c.Locals("userId").(string)
@@ -188,6 +217,18 @@ func CreateBlog(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Update a blog post
+// @Description Update a blog post with title, content, and tags
+// @Tags blogs
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param blog body models.CreateBlogRequest true "Blog data"
+// @Success 200 {object} models.ResponseMsg
+// @Failure 400 {object} models.ResponseError
+// @Failure 404 {object} models.ResponseMsg
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/update_blog/:blog_id [put]
 func UpdateBlog(c *fiber.Ctx) error {
 	// Get author id & blog id
 	blogID := c.Params("blog_id")
@@ -260,6 +301,17 @@ func UpdateBlog(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Delete a blog post
+// @Tags blogs
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.ResponseMsg
+// @Failure 400 {object} models.ResponseMsg
+// @Failure 403 {object} models.ResponseMsg
+// @Failure 404 {object} models.ResponseMsg
+// @Failure 500 {object} models.ResponseError
+// @Router /api/v1/delete_blog/:blog_id [delete]
 func DeleteBlog(c *fiber.Ctx) error {
 	// Get blog id and author id
 	blogID := c.Params("blog_id")

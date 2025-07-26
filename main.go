@@ -1,3 +1,18 @@
+// @title Blog Management API
+// @version 1.0
+// @description A blog API with user authentication and Redis caching
+// @termsOfService http://swagger.io/terms/
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:3000
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
 package main
 
 import (
@@ -5,12 +20,14 @@ import (
 
 	"inkinkink111/go-blog-management/config"
 	"inkinkink111/go-blog-management/db"
+	_ "inkinkink111/go-blog-management/docs" // This will be generated
 	"inkinkink111/go-blog-management/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 )
 
@@ -27,6 +44,8 @@ func main() {
 	}))
 	app.Use(recover.New())
 	app.Use(cors.New())
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	db.ConnectMongo()
 	db.ConnectRedis()
